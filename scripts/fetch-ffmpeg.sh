@@ -81,6 +81,8 @@ function build_mac_ffmpeg() {
       -DBUILD_SHARED_LIBS=OFF \
       -DBUILD_TESTS=OFF \
       -DWITH_SIMD=OFF \
+      -DWITH_OPENMP=OFF \
+      -DWITH_LSR_BINDINGS=OFF \
       -DCMAKE_C_FLAGS="-Wno-implicit-function-declaration -Wno-error=implicit-function-declaration" \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_OSX_ARCHITECTURES="$ARCH" \
@@ -88,6 +90,10 @@ function build_mac_ffmpeg() {
       -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
       -DCMAKE_INSTALL_PREFIX="$PREFIX" >/dev/null
     cmake --build "$TMP/$ARCH/soxr-build" --target install --parallel "$JOBS" >/dev/null
+
+    if [[ -f "$PREFIX/lib/pkgconfig/soxr.pc" ]]; then
+      echo "Libs.private: -lm" >> "$PREFIX/lib/pkgconfig/soxr.pc"
+    fi
 
     echo "building ffmpeg $FFMPEG_VERSION ($ARCH, static libsoxr) — this takes a few minutes..."
     # x86_64 hand-optimized assembly needs nasm; rather than add a build
@@ -107,9 +113,11 @@ function build_mac_ffmpeg() {
     cp -R "$TMP/ffmpeg-$FFMPEG_VERSION" "$TMP/$ARCH/src"
     (
       cd "$TMP/$ARCH/src"
-      PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig" ./configure \
+      export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig:$PREFIX/share/pkgconfig:${PKG_CONFIG_PATH:-}"
+      if ! ./configure \
         --arch="$FF_ARCH" \
-        --cc="clang -arch $ARCH" \
+        --cc=clang \
+        --cxx=clang++ \
         $cross_flags \
         $asm_flags \
         --enable-libsoxr \
@@ -122,8 +130,19 @@ function build_mac_ffmpeg() {
         --disable-debug \
         --pkg-config-flags=--static \
         --extra-cflags="-I$PREFIX/include -arch $ARCH -mmacosx-version-min=$MAC_DEPLOY_TARGET" \
-        --extra-ldflags="-L$PREFIX/lib -arch $ARCH -mmacosx-version-min=$MAC_DEPLOY_TARGET" >/dev/null
-      make --silent --jobs "$JOBS" >/dev/null
+        --extra-ldflags="-L$PREFIX/lib -arch $ARCH -mmacosx-version-min=$MAC_DEPLOY_TARGET -lm" > "$TMP/$ARCH/configure.log" 2>&1; then
+          echo "FFmpeg configure failed for $ARCH! Output:" >&2
+          cat "$TMP/$ARCH/configure.log" >&2
+          if [[ -f ffbuild/config.log ]]; then
+            echo "=== Last 100 lines of ffbuild/config.log ===" >&2
+            tail -n 100 ffbuild/config.log >&2
+          fi
+          exit 1
+      fi
+      if ! make --silent --jobs "$JOBS"; then
+        echo "FFmpeg compilation failed for $ARCH!" >&2
+        exit 1
+      fi
     )
     SLICES+=("$TMP/$ARCH/src/ffmpeg")
   done

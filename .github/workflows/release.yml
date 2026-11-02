@@ -119,6 +119,10 @@ jobs:
           echo "Configuring StemTool version: $VER"
           npm version "$VER" --no-git-tag-version --allow-same-version
 
+      - name: Install build tools (macOS)
+        run: |
+          brew install pkg-config nasm
+
       - name: Cache FFmpeg (macOS)
         uses: actions/cache@v4
         with:

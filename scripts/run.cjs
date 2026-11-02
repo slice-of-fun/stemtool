@@ -82,10 +82,10 @@ const STEPS = {
   ],
   'typecheck:node': [['tsc', '--noEmit', '-p', 'tsconfig.node.json']],
   'typecheck:web': [['tsc', '--noEmit', '-p', 'tsconfig.web.json']],
-  dist: [['electron-vite', 'build'], ['electron-builder', '--mac']],
-  'dist:win': [['electron-vite', 'build'], ['electron-builder', '--win']],
-  'dist:linux': [['electron-vite', 'build'], ['electron-builder', '--linux']],
-  'dist:all': [['electron-vite', 'build'], ['electron-builder', '--mac', '--win']]
+  dist: [['electron-vite', 'build'], ['electron-builder', '--mac', '--publish', 'never']],
+  'dist:win': [['electron-vite', 'build'], ['electron-builder', '--win', '--publish', 'never']],
+  'dist:linux': [['electron-vite', 'build'], ['electron-builder', '--linux', '--publish', 'never']],
+  'dist:all': [['electron-vite', 'build'], ['electron-builder', '--mac', '--win', '--publish', 'never']]
 }
 
 function ffmpegBin() {

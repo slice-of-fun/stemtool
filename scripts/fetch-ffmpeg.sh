@@ -80,6 +80,8 @@ function build_mac_ffmpeg() {
     cmake -S "$TMP/soxr-$SOXR_VERSION" -B "$TMP/$ARCH/soxr-build" \
       -DBUILD_SHARED_LIBS=OFF \
       -DBUILD_TESTS=OFF \
+      -DWITH_SIMD=OFF \
+      -DCMAKE_C_FLAGS="-Wno-implicit-function-declaration -Wno-error=implicit-function-declaration" \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_OSX_ARCHITECTURES="$ARCH" \
       -DCMAKE_OSX_DEPLOYMENT_TARGET="$MAC_DEPLOY_TARGET" \

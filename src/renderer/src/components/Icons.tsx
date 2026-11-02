@@ -146,21 +146,26 @@ export function ExternalIcon({ className = base }: IconProps) {
 
 export function LogoMark({ className = 'w-7 h-7' }: IconProps) {
   return (
-    <svg viewBox="0 0 32 32" fill="none" className={className}>
+    <svg viewBox="0 0 32 32" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="lg" x1="0" y1="0" x2="32" y2="32">
-          <stop offset="0%" stopColor="#A78BFA" />
-          <stop offset="100%" stopColor="#34D399" />
+        <linearGradient id="lm_bg2" x1="16" y1="0" x2="16" y2="32" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#1C1B29" />
+          <stop offset="100%" stopColor="#0B0A12" />
         </linearGradient>
       </defs>
-      <rect width="32" height="32" rx="9" fill="url(#lg)" opacity="0.92" />
-      <g stroke="#0b0b10" strokeWidth="2.2" strokeLinecap="round">
-        <path d="M9 12v8" />
-        <path d="M13 8.5v15" />
-        <path d="M17 11v10" />
-        <path d="M21 7v18" />
-        <path d="M25 13.5v5" opacity="0.55" />
-      </g>
+      <rect width="32" height="32" rx="7.5" fill="url(#lm_bg2)" />
+      <rect x="0.5" y="0.5" width="31" height="31" rx="7" stroke="#FFFFFF" strokeOpacity="0.12" />
+      {/* Incoming wave */}
+      <path d="M4 16h3c1.5-3 2.5 3 4 0h3" stroke="#FFFFFF" strokeWidth="1.2" strokeLinecap="round" />
+      {/* Prism */}
+      <polygon points="14,7 10,24 18,24" fill="#FFFFFF" fillOpacity="0.1" stroke="#FFFFFF" strokeWidth="0.8" strokeOpacity="0.4" />
+      <line x1="14" y1="7" x2="14" y2="22" stroke="#FFFFFF" strokeWidth="0.8" strokeOpacity="0.6" />
+      {/* Refracted Stems */}
+      <path d="M14 16c3 0 4-6 7-6h7" stroke="#C084FC" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M14 16c3 0 4-2 7-2h7" stroke="#FB7185" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M14 16c3 0 4 2 7 2h7" stroke="#FBBF24" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M14 16c3 0 4 6 7 6h7" stroke="#34D399" strokeWidth="1.2" strokeLinecap="round" />
+      <circle cx="14" cy="16" r="1.5" fill="#FFFFFF" />
     </svg>
   )
 }

@@ -1,125 +1,171 @@
-# StemTool
-
-Split any YouTube song into isolated stems — **vocals, drums, bass, guitar, piano** and more — right on your machine.
-
-Search YouTube or paste a link, pick the instruments you want, and play the result like a mini DAW: the video on one side, every stem on its own fader, all perfectly in sync. Karaoke, acapellas and instrumentals are one click away.
-
-Everything runs locally — no accounts, no API keys. Your songs, searches and audio never leave your machine. The app sends a single tiny anonymous ping per install (a random install id + version/OS)  — see [Privacy](#privacy) for details.
-
-![platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-black) ![local](https://img.shields.io/badge/100%25-local-emerald)
-
 <p align="center">
-  <img src="docs/stemtool.png" alt="StemTool splitting Queen's Bohemian Rhapsody into six stems — video player, presets and color-coded waveform lanes" width="100%" />
+  <img src="docs/stemtool-logo.svg" alt="StemTool Logo" width="128" height="128" />
 </p>
 
-## Features
+<h1 align="center">StemTool</h1>
 
-- Built-in YouTube search, or paste a link
-- Choose your instruments individually; the right separation engine is picked for you
-- Tight audio/video sync with instant, artifact-free seeking
-- One-click presets: **All · Karaoke · Acapella · Drums + Bass**
-- Per-stem mute/solo/volume, waveforms with click-to-seek
-- Parallel background splitting with live progress
-- Export any stem (or all) as WAV
-- Fully offline after setup — separation runs on Mac (MPS), NVIDIA GPUs (CUDA), AMD GPUs on Linux (ROCm, experimental) or CPU; ffmpeg included
+<p align="center">
+  <strong>High-performance, 100% local audio stem separation for creators, producers, and video editors.</strong>
+</p>
 
-## Download
+<p align="center">
+  <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-black" alt="Platform" />
+  <img src="https://img.shields.io/badge/privacy-100%25%20local-emerald" alt="100% Local" />
+  <img src="https://img.shields.io/badge/premiere%20pro-plugin%20included-blue" alt="Premiere Pro Plugin" />
+  <img src="https://img.shields.io/badge/license-MIT-purple" alt="License" />
+</p>
 
-Grab installers from [Releases](https://github.com/slice-of-fun/stemtool/releases):
-- **macOS**: `StemTool-x.y.z-mac-arm64.dmg` (Apple Silicon) or `StemTool-x.y.z-mac-x64.dmg` (Intel)
-- **Windows**: `StemTool-Setup-x.y.z.exe` (installer) or portable `.zip`
-- **Linux** (x64): `StemTool-x.y.z-linux-x86_64.AppImage` (portable, self-updating) or `StemTool-x.y.z-linux-amd64.deb`
+---
 
-First launch creates a private Python environment and downloads the separation engine (~2 GB) — one time. ffmpeg is bundled — nothing else to install.
+## Overview
 
-Optional quality upgrades live behind a gear icon in the app (Settings), each with its own one-time download:
-- **Studio-quality vocals** (Mel-Band Roformer): +913 MB — runs on GPU or CPU (CPU is slower)
-- **Fine-tuned demucs** (htdemucs_ft): +~320 MB, up to 4× slower
-- **Refinement passes**: 2 shifts instead of 1, up to 3× slower
+**StemTool** isolates and extracts vocals, drums, bass, guitar, piano, and other instruments directly on your machine. Powered by state-of-the-art neural separation models (**Mel-Band Roformer** and **HTDemucs**), it delivers studio-quality audio isolation without sending a single byte of your media to the cloud.
 
-> **macOS first launch**: builds are signed with a Developer ID but not notarized, so macOS may say it "cannot verify the developer". One-time fix: **System Settings → Privacy & Security → Open Anyway** (or `xattr -cr /Applications/StemTool.app`).
->
-> **Windows**: SmartScreen may warn on first run — "More info → Run anyway".
+Available as both a **standalone desktop workstation** and a native **Adobe Premiere Pro timeline extension**.
 
-## Requirements
+---
 
-- **macOS 12+** (Apple Silicon or Intel x86_64) or **Windows 10/11** (x64) or **Linux x64** (Ubuntu 22.04+ or equivalent; NVIDIA driver for GPU splits, AMD via ROCm on Linux — experimental)
-- No manual installs: if no Python 3.9+ is detected, StemTool downloads a private runtime (python-build-standalone) during first-launch setup
-- Node.js 24+ only for building from source
+## Key Features
 
-> **Intel Mac**: PyTorch publishes no macOS x86_64 wheels past 2.2.2, so first-launch setup installs that build instead of the 2.5.1 used everywhere else. MPS is still available on that build when the machine has a Metal-capable GPU (verified on an Intel Mac with a discrete GPU); integrated-only Macs fall back to CPU.
+### 🎛️ Desktop Audio Workstation
+- **Search or Import**: Search YouTube directly or drag-and-drop local audio/video files.
+- **Multi-Track Stem Player**: Play separated stems with dedicated volume faders, pan controls, solo/mute buttons, and interactive waveforms.
+- **Instant Seeking & Sync**: Zero-latency scrub across video and separated audio channels.
+- **One-Click Presets**: Fast switching between **All Stems**, **Karaoke** (no vocals), **Acapella** (vocals only), and **Rhythm Section** (drums + bass).
+- **Export to WAV**: Export isolated stems individually or batch export all channels as uncompressed 24-bit/32-bit WAV files.
 
-## Develop
+### 🎬 Premiere Pro Extension Plugin
+- **Direct Timeline Splitting**: Select any audio clip on your active Premiere Pro sequence and split it into stems with a single click.
+- **Automatic Track Placement**: Automatically maps separated stems (Vocals, Drums, Bass, Other) onto synchronized audio tracks (`A2`, `A3`, `A4`, `A5`) beneath your source.
+- **Decoupled Architecture**: All heavy ML computation runs through the local StemTool background engine—keeping Premiere Pro responsive, fast, and crash-free.
+- **Smart Safety Guard**: Detects whether StemTool is installed and prompts you with a clean download dialog if not.
 
+### 🔒 100% Private & Fully Offline
+- **Zero Cloud Uploads**: Your media, library, and audio processing never leave your computer.
+- **Zero Telemetry**: No tracking, no analytics, no background heartbeats, and no third-party phone-home servers.
+- **Hardware Accelerated**: Optimized for Apple Silicon (Metal/MPS), NVIDIA GPUs (CUDA), AMD (ROCm on Linux), and multi-threaded CPU fallback.
+
+---
+
+## Premiere Pro Plugin Setup
+
+The Premiere Pro CEP plugin is located in the `premiere-plugin/` directory.
+
+### Quick Install (Windows)
+Run PowerShell as Administrator:
+```powershell
+.\premiere-plugin\install-plugin.ps1
+```
+
+### Quick Install (macOS)
 ```bash
+chmod +x ./premiere-plugin/install-plugin.sh
+./premiere-plugin/install-plugin.sh
+```
+
+### How to Use in Premiere Pro
+1. Open Adobe Premiere Pro.
+2. Go to **Window → Extensions → StemTool**.
+3. Select an audio clip on your sequence timeline.
+4. Click **Split Selected Clip**. The plugin communicates with your local StemTool installation to isolate stems and automatically insert them onto your sequence.
+
+---
+
+## Desktop App Installation
+
+Download pre-built binaries from [Releases](https://github.com/slice-of-fun/stemtool/releases):
+
+| OS | Format | Notes |
+| :--- | :--- | :--- |
+| **Windows** | `.exe` installer / `.zip` portable | Windows 10/11 (x64) |
+| **macOS** | `.dmg` | Universal (Apple Silicon & Intel) |
+| **Linux** | `.AppImage` / `.deb` | Ubuntu 22.04+ or equivalent |
+
+*First launch automatically prepares a private Python runtime and fetches the separation weights (~2 GB).*
+
+---
+
+## Separation Architecture
+
+```
+Audio Source (YouTube / File / Timeline Clip)
+         │
+         ▼
+   Bundled FFmpeg (44.1 kHz 16-bit Float PCM)
+         │
+         ├────────────────────────────────┐
+         ▼                                ▼
+Mel-Band Roformer (Vocals)        HTDemucs (Drums, Bass, Other)
+         │                                │
+         └────────────────┬───────────────┘
+                          ▼
+            Isolated WAV Stem Channels
+                          │
+         ┌────────────────┴────────────────┐
+         ▼                                 ▼
+StemTool Desktop DAW               Premiere Pro Sequence
+(Waveforms, Faders, Pan)          (Tracks A2, A3, A4, A5)
+```
+
+---
+
+## Development
+
+### Prerequisites
+- Node.js 24+
+- npm or pnpm
+
+### Quick Start
+```bash
+# Install dependencies
 npm install
+
+# Start development mode
 npm run dev
 ```
 
-Wrong Node version? Scripts auto-relaunch with a suitable one (nvm / nvm-windows).
-
-## Build & release
-
+### Building Installers
 ```bash
-bash scripts/fetch-ffmpeg.sh        # mac (compiles arm64 + x86_64 ffmpeg + libsoxr, needs cmake) / linux (one time)
-powershell scripts/fetch-ffmpeg.ps1 # windows (one time)
+# Fetch bundled FFmpeg binaries (one-time setup)
+powershell scripts/fetch-ffmpeg.ps1  # Windows
+bash scripts/fetch-ffmpeg.sh        # macOS / Linux
 
-npm run dist        # mac dmg -> release/
-npm run dist:win    # windows nsis+zip -> release/
-npm run dist:linux  # linux AppImage+deb (x64) -> release/
-npm run dist:all    # both (on the matching OS)
+# Build distributables
+npm run dist:win    # Windows installer & portable zip
+npm run dist        # macOS DMG
+npm run dist:linux  # Linux AppImage & deb
 ```
 
-> **Linux**: building the `.deb` needs `dpkg` + `fakeroot` on the host; running the `.AppImage` needs FUSE. In-app self-update works on the AppImage — `.deb` installs update by re-downloading.
-
-Releases are built by GitHub Actions:
-- push a tag `v*` → binaries attach to a draft GitHub Release
-- `workflow_dispatch` ("Run workflow") → on-demand artifacts on the run page
-
-macOS builds are Developer-ID-signed when the certificate is available — see **Signing in CI** below for the one-time setup, plus optional notarization.
-
-### Signing in CI (one-time setup)
-
-Local builds sign with your keychain cert automatically. CI runners have empty keychains, so hand them the certificate via repo **secrets**:
-
-1. Keychain Access → My Certificates → right-click `Developer ID Application: ...` → Export → `.p12` (set an export password)
-2. Base64 it and add these repo secrets:
-   - `CSC_MAC_P12` — the base64 string: `base64 -i developer-id.p12 | pbcopy`
-   - `CSC_MAC_PASSWORD` — the export password from step 1
-3. Optional (full notarization, zero Gatekeeper prompts): add `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID` **and** set repo variable `ENABLE_NOTARIZATION` to `true` (Settings → Secrets and variables → Actions → Variables). Requires an **active** Apple Developer membership — Apple's notary service rejects expired accounts.
-
-Without these secrets CI falls back to ad-hoc signing (app runs, but Gatekeeper complains on download).
-
-## How it works
-
-```
-YouTube URL ──► yt-dlp (+JS runtime) ──► bundled ffmpeg ──► mel-band roformer (vocals) ─┐
-                                        │                                               ├─► stems/*.wav
-                                        └─────────────► demucs htdemucs ────────────────┘
-                                             (drums/bass/other, shift-averaged)
-
-Electron renderer ◄──── IPC events ─────┘
-video iframe (muted) + Web Audio stem playback · master clock = the audio itself
+### Running Tests
+```bash
+npm test
+node tests/engine.test.mjs
+node tests/pan-storage.test.mjs
 ```
 
-## Notes
+---
 
-- Downloading audio from YouTube violates their ToS for public products — keep this personal.
-- Want the data somewhere else (venv, models, songs, library)? Start the app with `STEMTOOL_DATA_DIR=/path/to/folder` set. Unset keeps the default app folder.
-- yt-dlp breaks occasionally when YouTube changes things; the error dialog offers a one-click update (updates `yt-dlp` + the challenge solver together).
-
-## Privacy
-
-- **100% Local & Private:** The videos you download, the songs you split, your library, your searches, and your audio never leave your machine. All separation runs locally.
-- **Zero Telemetry:** No analytics, no server pings, no install counters, and no background phone-home mechanisms. Everything runs strictly on your machine.
-## Layout
+## Repository Structure
 
 ```
-src/main         Electron main process (pipeline, env bootstrap, library)
-src/preload      IPC bridge
-src/renderer     React UI (player, sync engine, waveforms)
-python/          separate.py (demucs) and roformer.py (neural vocals) with JSON progress output
-python/vendor/   patched model code — see python/vendor/README.md
-scripts/         node runner, ffmpeg fetchers
-build/           icon sources
+├── build/                 # Vector icons and build metadata
+├── docs/                  # Documentation assets
+├── premiere-plugin/       # Adobe Premiere Pro CEP extension plugin
+│   ├── CSXS/              # Extension manifest (v12.0)
+│   ├── js/                # UI controller & local engine bridge
+│   ├── jsx/               # ExtendScript sequence & audio track manipulator
+│   └── install-plugin.ps1 # 1-click Windows installer
+├── python/                # Neural separation scripts (Roformer & Demucs)
+├── scripts/               # Build utilities and FFmpeg fetchers
+├── src/
+│   ├── main/              # Electron main process & separation pipeline
+│   ├── preload/           # Secure context-isolated IPC bridge
+│   └── renderer/          # React audio player, waveforms, and mixer UI
+└── tests/                 # Audio engine, pan persistence, and path tests
 ```
+
+---
+
+## License
+
+Released under the [MIT License](LICENSE). Built for music creators, audio engineers, and video editors by [slice-of-fun](https://github.com/slice-of-fun).

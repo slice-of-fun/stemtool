@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="7.0" ExtensionBundleId="com.stemtool.premiere" ExtensionBundleVersion="1.0.0"
+<ExtensionManifest Version="7.0" ExtensionBundleId="com.stemtool.premiere" ExtensionBundleVersion="0.10.0"
   ExtensionBundleName="StemTool Audio Splitter" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ExtensionList>
-    <Extension Id="com.stemtool.premiere.panel" Version="1.0.0" />
+    <Extension Id="com.stemtool.premiere.panel" Version="0.10.0" />
   </ExtensionList>
   <HostList>
     <!-- Premiere Pro support from CC 2020 (14.0) through 2025+ (99.9) -->

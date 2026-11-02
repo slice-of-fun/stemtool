@@ -1,0 +1,301 @@
+name: Build & Release StemTool
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 0.10.0)'
+        required: true
+        default: '0.10.0'
+      publish_release:
+        description: 'Publish GitHub Release with all installers'
+        required: true
+        type: boolean
+        default: true
+      draft:
+        description: 'Mark release as Draft'
+        required: true
+        type: boolean
+        default: false
+      prerelease:
+        description: 'Mark release as Pre-release'
+        required: true
+        type: boolean
+        default: false
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  # =========================================================================
+  # 1. BUILD WINDOWS INSTALLERS (.exe setup + .zip portable)
+  # =========================================================================
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set version
+        shell: pwsh
+        run: |
+          $ver = "${{ github.event.inputs.version }}"
+          if (-not $ver -and "${{ github.ref }}" -like "refs/tags/v*") {
+            $ver = "${{ github.ref_name }}".TrimStart("v")
+          }
+          if (-not $ver) { $ver = "0.10.0" }
+          Write-Host "Configuring StemTool version: $ver"
+          npm version $ver --no-git-tag-version --allow-same-version
+
+      - name: Cache FFmpeg (Windows)
+        uses: actions/cache@v4
+        with:
+          path: extras/ffmpeg-win
+          key: ffmpeg-win-${{ hashFiles('scripts/fetch-ffmpeg.ps1') }}
+
+      - name: Fetch FFmpeg
+        shell: pwsh
+        run: powershell -ExecutionPolicy Bypass -File scripts/fetch-ffmpeg.ps1
+
+      - name: Build Windows Installers
+        run: npm run dist:win
+
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installers
+          path: |
+            release/*.exe
+            release/*.zip
+            release/*.blockmap
+            release/latest.yml
+          if-no-files-found: error
+
+  # =========================================================================
+  # 2. BUILD MACOS INSTALLERS (.dmg + .zip)
+  # =========================================================================
+  build-macos:
+    name: Build macOS
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set version
+        run: |
+          VER="${{ github.event.inputs.version }}"
+          if [ -z "$VER" ] && [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VER="${GITHUB_REF_NAME#v}"
+          fi
+          if [ -z "$VER" ]; then VER="0.10.0"; fi
+          echo "Configuring StemTool version: $VER"
+          npm version "$VER" --no-git-tag-version --allow-same-version
+
+      - name: Cache FFmpeg (macOS)
+        uses: actions/cache@v4
+        with:
+          path: extras/ffmpeg-mac
+          key: ffmpeg-mac-${{ hashFiles('scripts/fetch-ffmpeg.sh') }}
+
+      - name: Fetch FFmpeg
+        run: bash scripts/fetch-ffmpeg.sh
+
+      - name: Build macOS DMG & Zip
+        run: npm run dist
+
+      - name: Upload macOS Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-installers
+          path: |
+            release/*.dmg
+            release/*.zip
+            release/*.blockmap
+            release/latest-mac.yml
+          if-no-files-found: error
+
+  # =========================================================================
+  # 3. BUILD LINUX INSTALLERS (.AppImage + .deb)
+  # =========================================================================
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install packaging tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libarchive-tools fakeroot dpkg
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set version
+        run: |
+          VER="${{ github.event.inputs.version }}"
+          if [ -z "$VER" ] && [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VER="${GITHUB_REF_NAME#v}"
+          fi
+          if [ -z "$VER" ]; then VER="0.10.0"; fi
+          echo "Configuring StemTool version: $VER"
+          npm version "$VER" --no-git-tag-version --allow-same-version
+
+      - name: Cache FFmpeg (Linux)
+        uses: actions/cache@v4
+        with:
+          path: extras/ffmpeg-linux
+          key: ffmpeg-linux-${{ hashFiles('scripts/fetch-ffmpeg.sh') }}
+
+      - name: Fetch FFmpeg
+        run: bash scripts/fetch-ffmpeg.sh
+
+      - name: Build Linux AppImage & deb
+        run: npm run dist:linux
+
+      - name: Upload Linux Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-installers
+          path: |
+            release/*.AppImage
+            release/*.deb
+            release/latest-linux.yml
+          if-no-files-found: error
+
+  # =========================================================================
+  # 4. PACKAGE PREMIERE PRO CEP PLUGIN
+  # =========================================================================
+  package-premiere-plugin:
+    name: Package Premiere Pro Plugin
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create Plugin Archive
+        run: |
+          VER="${{ github.event.inputs.version }}"
+          if [ -z "$VER" ] && [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VER="${GITHUB_REF_NAME#v}"
+          fi
+          if [ -z "$VER" ]; then VER="0.10.0"; fi
+
+          mkdir -p dist-plugin
+          PLUGIN_ZIP="dist-plugin/StemTool-Premiere-Plugin-v${VER}.zip"
+
+          echo "Archiving Premiere Pro Plugin into $PLUGIN_ZIP..."
+          (cd premiere-plugin && zip -r "../$PLUGIN_ZIP" . -x "*.git*")
+
+      - name: Upload Premiere Plugin Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: premiere-plugin-installer
+          path: dist-plugin/*.zip
+          if-no-files-found: error
+
+  # =========================================================================
+  # 5. PUBLISH GITHUB RELEASE
+  # =========================================================================
+  publish-release:
+    name: Publish Release
+    needs: [build-windows, build-macos, build-linux, package-premiere-plugin]
+    if: >-
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.publish_release == 'true' || github.event.inputs.publish_release == true))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Determine Release Tag & Version
+        id: vars
+        run: |
+          VER="${{ github.event.inputs.version }}"
+          if [ -z "$VER" ] && [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VER="${GITHUB_REF_NAME#v}"
+          fi
+          if [ -z "$VER" ]; then VER="0.10.0"; fi
+          TAG="v${VER}"
+          echo "version=$VER" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: List Release Assets
+        run: |
+          echo "Collected release assets:"
+          ls -la release-assets/
+
+      - name: Generate Release Notes
+        id: notes
+        run: |
+          cat << 'EOF' > release_notes.md
+          ## StemTool v${{ steps.vars.outputs.version }}
+
+          High-performance, 100% local audio stem separation for creators, producers, and video editors.
+
+          ### 📦 Included Installers
+
+          #### Desktop Application:
+          - **Windows**: `StemTool-${{ steps.vars.outputs.version }}-win-x64.exe` (Installer) or `.zip` (Portable)
+          - **macOS**: `StemTool-${{ steps.vars.outputs.version }}-mac-arm64.dmg` / `.dmg` (Apple Silicon & Intel)
+          - **Linux**: `StemTool-${{ steps.vars.outputs.version }}-linux-x86_64.AppImage` (Self-updating portable) or `.deb` (Debian/Ubuntu)
+
+          #### Adobe Premiere Pro Extension Plugin:
+          - **Premiere Pro Plugin**: `StemTool-Premiere-Plugin-v${{ steps.vars.outputs.version }}.zip`
+            - Includes 1-click installer scripts (`install-plugin.ps1` for Windows, `install-plugin.sh` for macOS)
+            - Splits sequence audio clips directly into tracks `A2`–`A5` on your timeline
+            - Decoupled zero-load architecture powered by your local StemTool installation
+
+          ### 🔒 100% Local & Private
+          - Zero telemetry and zero background phone-home calls.
+          - All separation runs strictly on your machine via PyTorch (Demucs & Mel-Band Roformer).
+          EOF
+          # Substitute the version
+          sed -i 's/\${{ steps.vars.outputs.version }}/${{ steps.vars.outputs.version }}/g' release_notes.md
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.vars.outputs.tag }}
+          name: "StemTool v${{ steps.vars.outputs.version }}"
+          body_path: release_notes.md
+          draft: ${{ github.event.inputs.draft == 'true' || github.event.inputs.draft == true }}
+          prerelease: ${{ github.event.inputs.prerelease == 'true' || github.event.inputs.prerelease == true }}
+          files: release-assets/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

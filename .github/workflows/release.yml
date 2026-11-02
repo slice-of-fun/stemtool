@@ -23,6 +23,8 @@ on:
         type: boolean
         default: false
   push:
+    branches:
+      - main
     tags:
       - 'v*'
 
@@ -59,6 +61,9 @@ jobs:
           $ver = "${{ github.event.inputs.version }}"
           if (-not $ver -and "${{ github.ref }}" -like "refs/tags/v*") {
             $ver = "${{ github.ref_name }}".TrimStart("v")
+          }
+          if (-not $ver) {
+            $ver = (node -p "require('./package.json').version").Trim()
           }
           if (-not $ver) { $ver = "0.10.0" }
           Write-Host "Configuring StemTool version: $ver"
@@ -114,6 +119,9 @@ jobs:
           VER="${{ github.event.inputs.version }}"
           if [ -z "$VER" ] && [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             VER="${GITHUB_REF_NAME#v}"
+          fi
+          if [ -z "$VER" ]; then
+            VER=$(node -p "require('./package.json').version")
           fi
           if [ -z "$VER" ]; then VER="0.10.0"; fi
           echo "Configuring StemTool version: $VER"
@@ -180,6 +188,9 @@ jobs:
           if [ -z "$VER" ] && [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             VER="${GITHUB_REF_NAME#v}"
           fi
+          if [ -z "$VER" ]; then
+            VER=$(node -p "require('./package.json').version")
+          fi
           if [ -z "$VER" ]; then VER="0.10.0"; fi
           echo "Configuring StemTool version: $VER"
           npm version "$VER" --no-git-tag-version --allow-same-version
@@ -224,6 +235,9 @@ jobs:
           if [ -z "$VER" ] && [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             VER="${GITHUB_REF_NAME#v}"
           fi
+          if [ -z "$VER" ]; then
+            VER=$(node -p "require('./package.json').version")
+          fi
           if [ -z "$VER" ]; then VER="0.10.0"; fi
 
           mkdir -p dist-plugin
@@ -246,7 +260,7 @@ jobs:
     name: Publish Release
     needs: [build-windows, build-macos, build-linux, package-premiere-plugin]
     if: >-
-      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+      (github.event_name == 'push') ||
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.publish_release == 'true' || github.event.inputs.publish_release == true))
     runs-on: ubuntu-latest
     steps:
@@ -259,6 +273,9 @@ jobs:
           VER="${{ github.event.inputs.version }}"
           if [ -z "$VER" ] && [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             VER="${GITHUB_REF_NAME#v}"
+          fi
+          if [ -z "$VER" ]; then
+            VER=$(node -p "require('./package.json').version")
           fi
           if [ -z "$VER" ]; then VER="0.10.0"; fi
           TAG="v${VER}"
@@ -280,29 +297,66 @@ jobs:
         id: notes
         run: |
           cat << 'EOF' > release_notes.md
-          ## StemTool v${{ steps.vars.outputs.version }}
+          # StemTool v__VERSION__
 
-          High-performance, 100% local audio stem separation for creators, producers, and video editors.
+          **StemTool** is a modern, high-performance, 100% local audio stem separation suite for music producers, sound designers, DJs, video editors, and audio creators.
 
-          ### 📦 Included Installers
+          ---
 
-          #### Desktop Application:
-          - **Windows**: `StemTool-${{ steps.vars.outputs.version }}-win-x64.exe` (Installer) or `.zip` (Portable)
-          - **macOS**: `StemTool-${{ steps.vars.outputs.version }}-mac-arm64.dmg` / `.dmg` (Apple Silicon & Intel)
-          - **Linux**: `StemTool-${{ steps.vars.outputs.version }}-linux-x86_64.AppImage` (Self-updating portable) or `.deb` (Debian/Ubuntu)
+          ### 🌟 What's New in v__VERSION__
 
-          #### Adobe Premiere Pro Extension Plugin:
-          - **Premiere Pro Plugin**: `StemTool-Premiere-Plugin-v${{ steps.vars.outputs.version }}.zip`
-            - Includes 1-click installer scripts (`install-plugin.ps1` for Windows, `install-plugin.sh` for macOS)
-            - Splits sequence audio clips directly into tracks `A2`–`A5` on your timeline
-            - Decoupled zero-load architecture powered by your local StemTool installation
+          #### 1. 🔒 100% Local & Privacy-First Architecture
+          - **Zero Telemetry**: All external worker pings, telemetry beacons, and cloud phone-home calls have been permanently removed.
+          - **Fully Offline Processing**: Audio stems are extracted entirely on your computer using local PyTorch runtimes without sending a single byte to external servers.
 
-          ### 🔒 100% Local & Private
-          - Zero telemetry and zero background phone-home calls.
-          - All separation runs strictly on your machine via PyTorch (Demucs & Mel-Band Roformer).
+          #### 2. ⚡ High-Accuracy Neural Separation Models
+          - **Demucs v4 (Hybrid Transformer)**: 4-stem isolation separating audio tracks into **Vocals**, **Drums**, **Bass**, and **Other**.
+          - **Mel-Band Roformer**: State-of-the-art frequency-domain transformer delivering crisp vocal isolation and minimal bleed.
+          - **Hardware Acceleration**: Automatic hardware acceleration on Apple Silicon (MPS / Metal Performance Shaders), NVIDIA GPUs (CUDA), and multi-threaded CPU fallback.
+
+          #### 3. 🎛️ Audiophile Audio Resampling Pipeline
+          - **Integrated SoX Resampler (`libsoxr`)**: Custom bundled 44.1 kHz resampler providing 28-bit HQ audio resampling without phase distortion or aliasing.
+          - **Flexible Formats**: Import WAV, MP3, FLAC, M4A/AAC, OGG, or AIFF. Export as uncompressed 24-bit PCM WAV or high-bitrate AAC (256 kbps).
+
+          #### 4. 🎬 Adobe Premiere Pro Extension Plugin (CEP)
+          - **Direct Timeline Integration**: Select any audio clip on sequence track `A1` and split it directly onto tracks `A2` through `A5` with automated timeline synchronization.
+          - **Decoupled Architecture**: Lightweight panel communicates with the background StemTool service without degrading Premiere Pro timeline playback.
+          - **Automated Installers**: Includes 1-click installation scripts (`install-plugin.ps1` for Windows, `install-plugin.sh` for macOS).
+
+          #### 5. 🎨 Modernized User Interface
+          - **Interactive Stem Mixer**: Real-time per-stem volume faders, stereo panning knobs, mute, and solo controls.
+          - **Visual Waveform Canvas**: Interactive waveform display with scrubbing and preview playback.
+          - **Acoustic Refraction Prism Branding**: Clean, modern app identity with updated vector assets.
+
+          ---
+
+          ### 📦 Download Packages
+
+          | Platform | Package File | Type | Architecture |
+          | :--- | :--- | :--- | :--- |
+          | **Windows** | `StemTool-__VERSION__-win-x64.exe` | NSIS Setup Installer | Windows 10/11 (x64) |
+          | **Windows** | `StemTool-__VERSION__-win-x64.zip` | Portable Zip | Windows (x64) |
+          | **macOS** | `StemTool-__VERSION__.dmg` | Disk Image (Universal) | Apple Silicon (M1–M4) & Intel (x86_64) |
+          | **macOS** | `StemTool-__VERSION__-mac.zip` | Portable Zip | Apple Silicon & Intel (Universal) |
+          | **Linux** | `StemTool-__VERSION__-linux-x86_64.AppImage` | Standalone AppImage | Linux (x86_64) |
+          | **Linux** | `StemTool___VERSION___amd64.deb` | Debian / Ubuntu Package | Linux (x86_64) |
+          | **Premiere Pro** | `StemTool-Premiere-Plugin-v__VERSION__.zip` | Extension Archive | Cross-platform CEP extension |
+
+          ---
+
+          ### 🚀 Quick Start Guide
+
+          #### Desktop App
+          1. Download the package for your OS above.
+          2. Install or extract the application and launch **StemTool**.
+          3. Drag & drop an audio file, choose your separation model, and click **Separate**.
+
+          #### Premiere Pro Plugin
+          1. Download `StemTool-Premiere-Plugin-v__VERSION__.zip` and unzip it.
+          2. Run `install-plugin.ps1` (PowerShell on Windows) or `bash install-plugin.sh` (macOS).
+          3. Launch Premiere Pro, open **Window > Extensions > StemTool**, and split any clip on your timeline.
           EOF
-          # Substitute the version
-          sed -i "s/\${{ steps.vars.outputs.version }}/${{ steps.vars.outputs.version }}/g" release_notes.md
+          sed -i "s/__VERSION__/${{ steps.vars.outputs.version }}/g" release_notes.md
 
       - name: Create or Update GitHub Release
         uses: softprops/action-gh-release@v2
@@ -312,6 +366,7 @@ jobs:
           body_path: release_notes.md
           draft: ${{ github.event.inputs.draft == 'true' || github.event.inputs.draft == true }}
           prerelease: ${{ github.event.inputs.prerelease == 'true' || github.event.inputs.prerelease == true }}
+          make_latest: true
           files: release-assets/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

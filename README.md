@@ -110,11 +110,8 @@ video iframe (muted) + Web Audio stem playback · master clock = the audio itsel
 
 ## Privacy
 
-- **Never leaves your machine:** the videos you download, the songs you split, your library, your searches and your audio — none of it is uploaded anywhere. All separation runs locally.
-- **Anonymous install count:** the first time the app runs it sends one small POST to a Cloudflare Worker configured via `STEMTOOL_TELEMETRY_URL` — once per install, ever. It contains a **random install id** (generated locally, stored in the app's settings folder), the app version, OS and architecture. No IP-address-based profiles are built, no cookies, no identifiers tied to you, no analytics SDKs. If the first attempt fails (e.g. you're offline), it simply retries on a later launch.
-- **What it's for:** counting installs and active usage (the same stats you'd get from GitHub release downloads, minus auto-update noise). The counter code is in [`telemetry-worker/`](telemetry-worker) — inspectable like the rest of the app.
-- **Fully offline builds:** if you'd rather send nothing, build from source and remove `src/main/telemetry.ts` (or block the worker domain in your firewall) — everything else works identically offline.
-
+- **100% Local & Private:** The videos you download, the songs you split, your library, your searches, and your audio never leave your machine. All separation runs locally.
+- **Zero Telemetry:** No analytics, no server pings, no install counters, and no background phone-home mechanisms. Everything runs strictly on your machine.
 ## Layout
 
 ```

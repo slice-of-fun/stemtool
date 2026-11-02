@@ -4,7 +4,7 @@
 
 Please **do not open a public issue** for security problems.
 
-Report vulnerabilities privately via GitHub's [private vulnerability reporting](https://github.com/slice-of-fun/stemtool/security/advisories/new) (Security ? Report a vulnerability). That keeps the issue hidden until it is fixed.
+Report vulnerabilities privately via GitHub's [private vulnerability reporting](https://github.com/slice-of-fun/stemtool/security/advisories/new) (Security → Report a vulnerability). That keeps the issue hidden until it is fixed.
 
 When reporting, include:
 
@@ -21,8 +21,8 @@ Only the **latest release** is supported. Users are expected to update through t
 
 | Version | Supported |
 | ------- | --------- |
-| latest  | ?        |
-| older   | ?        |
+| latest  | ✅        |
+| older   | ❌        |
 
 ## Scope
 
@@ -30,14 +30,12 @@ The following are in scope:
 
 - the Electron app (main, preload, renderer) in `src/`
 - the Python sidecar and scripts in `python/`
-- the self-hosted telemetry worker in `telemetry-worker/`
 - the Premiere Pro plugin in `premiere-plugin/`
 
 ### Known considerations
 
 - On first launch the app downloads third-party components and installs them: a Python runtime, pip packages, and model weights (fetched over HTTPS from Hugging Face). Treat your network and the first-run downloads accordingly.
 - The app shells out to `yt-dlp` and a bundled `ffmpeg` binary.
-- The telemetry worker stores only an anonymous install id, version, OS, and arch � no PII. It is an aggregation endpoint, not a service boundary; do not assume it is hardened against abuse.
 
 ## Coordinated Disclosure
 

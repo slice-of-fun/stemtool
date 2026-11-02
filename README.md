@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/slice-of-fun/stemtool/releases/latest"><img src="https://img.shields.io/github/v/release/slice-of-fun/stemtool?color=blue&label=Latest%20Release" alt="Latest Release" /></a>
+  <a href="https://github.com/slice-of-fun/stemtool/releases/latest"><img src="https://img.shields.io/badge/Release-v0.10.0-blue" alt="Latest Release" /></a>
   <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-black" alt="Platform" />
   <img src="https://img.shields.io/badge/Privacy-100%25%20Local%20%2F%20Zero%20Telemetry-emerald" alt="100% Local" />
   <img src="https://img.shields.io/badge/Premiere%20Pro-Plugin%20Included-8A2BE2" alt="Premiere Pro Plugin" />

@@ -24,7 +24,6 @@ wrangler deploy
 
 ## Point the app at it
 
-The app defaults to `https://<your-subdomain>.workers.dev/ping` in
 `src/main/telemetry.ts`. After deploying, replace that host with your worker's
 URL (wrangler prints it, or check the Cloudflare dashboard). The subdomain is
 `stemtool-stats.<your-account-subdomain>.workers.dev`.

@@ -305,9 +305,9 @@ jobs:
 
           ### 🌟 What's New in v__VERSION__
 
-          #### 1. 🔒 100% Local & Privacy-First Architecture
-          - **Zero Telemetry**: All external worker pings, telemetry beacons, and cloud phone-home calls have been permanently removed.
-          - **Fully Offline Processing**: Audio stems are extracted entirely on your computer using local PyTorch runtimes without sending a single byte to external servers.
+          #### 1. 🔒 100% Local & Offline Architecture
+          - **On-Device Audio Processing**: All audio stems are extracted entirely on your local machine using PyTorch runtimes without sending any data over the network.
+          - **Completely Standalone**: Runs independently and offline with zero cloud server dependencies.
 
           #### 2. ⚡ High-Accuracy Neural Separation Models
           - **Demucs v4 (Hybrid Transformer)**: 4-stem isolation separating audio tracks into **Vocals**, **Drums**, **Bass**, and **Other**.

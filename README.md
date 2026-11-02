@@ -11,7 +11,7 @@
 <p align="center">
   <a href="https://github.com/slice-of-fun/stemtool/releases/latest"><img src="https://img.shields.io/badge/Release-v0.10.0-blue" alt="Latest Release" /></a>
   <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-black" alt="Platform" />
-  <img src="https://img.shields.io/badge/Privacy-100%25%20Local%20%2F%20Zero%20Telemetry-emerald" alt="100% Local" />
+  <img src="https://img.shields.io/badge/Privacy-100%25%20Local%20%26%20Offline-emerald" alt="100% Local & Offline" />
   <img src="https://img.shields.io/badge/Premiere%20Pro-Plugin%20Included-8A2BE2" alt="Premiere Pro Plugin" />
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-purple" alt="License" /></a>
 </p>
@@ -121,10 +121,10 @@ StemTool combines state-of-the-art machine learning models with a native, high-p
 
 ---
 
-## 🔒 100% Local & Privacy Guaranteed
+## 🔒 100% Local & Offline
 
-- **Zero Cloud Uploads**: Your songs, voiceovers, stems, and project files never leave your computer.
-- **Zero Telemetry**: No tracking beacons, no analytics, no worker pings, and no telemetry calls.
+- **On-Device Audio Processing**: Your songs, voiceovers, stems, and project files never leave your computer.
+- **Zero Cloud Dependencies**: All separation models run directly on your hardware using local runtimes.
 - **Full Offline Capability**: Works seamlessly on flights, in remote studios, or completely disconnected from the internet.
 
 ---

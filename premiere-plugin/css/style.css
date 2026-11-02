@@ -1,0 +1,368 @@
+/* StemTool Premiere Pro Extension - Adobe Spectrum Dark Theme */
+
+:root {
+    --bg-main: #1e1e1e;
+    --bg-card: #252525;
+    --bg-card-hover: #2a2a2a;
+    --bg-input: #181818;
+    --border-color: #383838;
+    --border-focus: #1473e6;
+    --text-primary: #f0f0f0;
+    --text-secondary: #9e9e9e;
+    --text-muted: #666666;
+    --accent-blue: #1473e6;
+    --accent-blue-hover: #0d66d0;
+    --accent-green: #26b36a;
+    --accent-warning: #e68619;
+    --accent-danger: #d73a49;
+    --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: var(--font-stack);
+    font-size: 12px;
+    line-height: 1.4;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 12px;
+}
+
+/* Header */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 12px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.brand-icon {
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 13px;
+    color: white;
+}
+
+.brand-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+.status-badge {
+    font-size: 10px;
+    padding: 3px 7px;
+    border-radius: 10px;
+    background: rgba(38, 179, 106, 0.15);
+    color: var(--accent-green);
+    border: 1px solid rgba(38, 179, 106, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.status-badge.error {
+    background: rgba(230, 134, 25, 0.15);
+    color: var(--accent-warning);
+    border-color: rgba(230, 134, 25, 0.3);
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* Cards */
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+}
+
+.card-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.btn-icon:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.clip-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.clip-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.clip-meta-row {
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-secondary);
+    font-size: 11px;
+}
+
+.clip-empty {
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 6px 0;
+}
+
+/* Preset Selectors */
+.preset-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.preset-btn {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    color: var(--text-primary);
+    padding: 7px 4px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.preset-btn:hover {
+    background: var(--bg-card-hover);
+    border-color: #555;
+}
+
+.preset-btn.active {
+    background: rgba(20, 115, 230, 0.15);
+    border-color: var(--accent-blue);
+    color: #64b5f6;
+    font-weight: 600;
+}
+
+.preset-label {
+    font-size: 11px;
+    display: block;
+}
+
+.preset-sub {
+    font-size: 9px;
+    color: var(--text-secondary);
+    display: block;
+    margin-top: 2px;
+}
+
+/* Checkbox Options */
+.options-group {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+    accent-color: var(--accent-blue);
+    cursor: pointer;
+}
+
+/* Action Button */
+.btn-action {
+    width: 100%;
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-action:hover:not(:disabled) {
+    background: var(--accent-blue-hover);
+}
+
+.btn-action:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Progress Section */
+.progress-section {
+    margin-top: 10px;
+    display: none;
+}
+
+.progress-section.visible {
+    display: block;
+}
+
+.progress-bar-bg {
+    width: 100%;
+    height: 6px;
+    background: var(--bg-input);
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    transition: width 0.25s ease;
+}
+
+.progress-status {
+    margin-top: 5px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: center;
+    min-height: 16px;
+}
+
+/* Modal Dialog */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+.modal-box {
+    background: #252528;
+    border: 1px solid #444;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 320px;
+    padding: 18px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.modal-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.modal-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 8px;
+}
+
+.modal-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+

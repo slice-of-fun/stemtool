@@ -1,0 +1,43 @@
+{
+  "name": "stemtool",
+  "productName": "StemTool",
+  "description": "Local YouTube stem splitter and player",
+  "main": "./out/main/index.js",
+  "author": "slice-of-fun",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "node scripts/run.cjs dev",
+    "build": "node scripts/run.cjs build",
+    "test": "node --test --experimental-strip-types src/main/data-dir.test.ts",
+    "typecheck:node": "node scripts/run.cjs typecheck:node",
+    "typecheck:web": "node scripts/run.cjs typecheck:web",
+    "typecheck": "node scripts/run.cjs typecheck",
+    "test:audio": "node scripts/run.cjs test:audio",
+    "dist": "node scripts/run.cjs dist",
+    "dist:win": "node scripts/run.cjs dist:win",
+    "dist:linux": "node scripts/run.cjs dist:linux",
+    "dist:all": "node scripts/run.cjs dist:all"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.6",
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^33.3.1",
+    "electron-builder": "^25.1.8",
+    "electron-vite": "^2.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^4.0.6",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.11"
+  },
+  "version": "0.2.0"
+}

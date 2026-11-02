@@ -1,0 +1,11 @@
+node_modules
+out
+release
+extras
+*.log
+.DS_Store
+
+__pycache__/
+*.pyc
+.plans/
+.env

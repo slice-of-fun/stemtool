@@ -1,0 +1,77 @@
+appId: com.stemtool.app
+productName: StemTool
+afterPack: scripts/after-pack.cjs
+directories:
+  output: release
+files:
+  - out/**/*
+asar: true
+artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+publish:
+  provider: github
+  owner: slice-of-fun
+  repo: stemtool
+extraResources:
+  - from: python
+    to: python
+mac:
+  category: public.app-category.music
+  icon: build/icon.png
+  # both slices: the bundled ffmpeg is universal (see scripts/fetch-ffmpeg.sh),
+  # so the x64 dmg carries a working Intel binary even though CI only has
+  # arm64 macOS runners to build it on
+  target:
+    - target: dmg
+      arch:
+        - arm64
+        - x64
+    - target: zip
+      arch:
+        - arm64
+        - x64
+  extraResources:
+    - from: extras/ffmpeg-mac/ffmpeg
+      to: ffmpeg/ffmpeg
+win:
+  icon: build/icon.png
+  target:
+    - target: nsis
+    - target: zip
+  extraResources:
+    - from: extras/ffmpeg-win/ffmpeg.exe
+      to: ffmpeg/ffmpeg.exe
+nsis:
+  oneClick: true
+  perMachine: false
+linux:
+  icon: build/icon.png
+  category: AudioVideo
+  executableName: stemtool
+  vendor: slice-of-fun
+  maintainer: slice-of-fun
+  synopsis: Local YouTube stem splitter and player
+  description: Split songs into isolated stems locally — vocals, drums, bass and more.
+  target:
+    - target: AppImage
+      arch:
+        - x64
+    - target: deb
+      arch:
+        - x64
+  desktop:
+    StartupWMClass: stemtool
+  extraResources:
+    - from: extras/ffmpeg-linux/ffmpeg
+      to: ffmpeg/ffmpeg
+deb:
+  depends:
+    - libgtk-3-0
+    - libnotify4
+    - libnss3
+    - libxss1
+    - libxtst6
+    - xdg-utils
+    - libatspi2.0-0
+    - libuuid1
+    - libsecret-1-0
+    - libasound2

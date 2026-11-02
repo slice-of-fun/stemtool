@@ -1,0 +1,159 @@
+export type StemId = 'vocals' | 'drums' | 'bass' | 'other' | 'piano' | 'guitar'
+export type StemPanMap = Partial<Record<StemId, number>>
+
+// which GPU vendor GPU acceleration targets: NVIDIA via CUDA torch (windows
+// + linux), AMD via ROCm torch (linux only)
+export type GpuVendor = 'nvidia' | 'amd'
+
+export const DEFAULT_STEMS: string[] = ['vocals', 'drums', 'bass', 'other']
+
+// roformer_hybrid = mel-band roformer vocals + htdemucs drums/bass/other
+export const MODEL_DEFAULT = 'roformer_hybrid'
+export const MODEL_EXTENDED = 'htdemucs_6s'
+
+export interface Song {
+  videoId: string
+  title: string
+  duration: number
+  addedAt: number
+  model?: string
+  stems?: string[]
+  took?: number
+  // local audio files carry their own mix; absent means a YouTube source
+  source?: 'local'
+}
+
+export interface AppSettings {
+  shifts: 1 | 2
+  htdemucsFt: boolean
+  roformerVocals: boolean
+  // windows/linux: separate on the GPU instead of the CPU. The toggle is only
+  // rendered when an NVIDIA GPU (cuda torch) or an AMD GPU on linux (rocm
+  // torch) is detected; enabling it downloads the ~2.5GB GPU build of torch
+  // on first use
+  gpuSplit: boolean
+  // hide the YouTube video while playing: stems are always played locally,
+  // this stops streaming the video and falls back to cached thumbnails
+  hideVideo: boolean
+  // format used when exporting stems: wav is the lossless source format,
+  // aac (.m4a) is transcoded on export via the bundled ffmpeg. mp3 isn't an
+  // option — the bundled ffmpeg is a minimal static build without libmp3lame
+  exportFormat: 'wav' | 'aac'
+  // absolute path: every finished split is copied out of the app's own storage
+  // into a <exportFolder>/<song>/ folder as soon as it lands in the library.
+  // Empty means "stay in the library only"
+  exportFolder: string
+}
+
+export const DEFAULT_SETTINGS: AppSettings = {
+  shifts: 1,
+  htdemucsFt: false,
+  roformerVocals: false,
+  gpuSplit: false,
+  hideVideo: false,
+  exportFormat: 'wav',
+  exportFolder: ''
+}
+
+export interface EngineStatus {
+  vocalsDownloading: boolean
+  vocalsReady: boolean
+  ftDownloading: boolean
+  ftVerified: boolean
+  // gpu torch engine (windows/linux; cuda for nvidia, rocm for amd on linux)
+  gpuDownloading: boolean
+  gpuReady: boolean
+}
+
+export interface EnvStatus {
+  python: { found: boolean; path?: string; version?: string }
+  ffmpeg: { found: boolean; path?: string }
+  ready: boolean
+  bootstrapping: boolean
+  updating: boolean
+  gpu?: boolean
+  // windows/linux only: which GPU vendor was detected (gates the GPU toggle
+  // in Settings; amd is only detected on linux)
+  gpuVendor?: GpuVendor
+}
+
+export interface EnvEvent {
+  message: string
+  level: 'info' | 'error' | 'success'
+}
+
+export type JobStage = 'metadata' | 'download' | 'convert' | 'separate' | 'finalize'
+
+export interface JobProgress {
+  videoId: string
+  title?: string
+  stage: JobStage
+  pct: number
+  message?: string
+  model?: string
+}
+
+export interface JobDone {
+  videoId: string
+  song: Song
+}
+
+export interface JobFailed {
+  videoId: string
+  message: string
+}
+
+export type JobEvent =
+  | { kind: 'progress'; data: JobProgress }
+  | { kind: 'done'; data: JobDone }
+  | { kind: 'failed'; data: JobFailed }
+
+export interface SearchResult {
+  videoId: string
+  title: string
+  channel?: string
+  duration?: number
+}
+
+export interface UpdateEvent {
+  status: 'checking' | 'available' | 'none' | 'progress' | 'downloaded' | 'error'
+  version?: string
+  pct?: number
+}
+
+export interface StemToolApi {
+  envStatus(): Promise<EnvStatus>
+  envBootstrap(): Promise<boolean>
+  envUpdateYtDlp(): Promise<boolean>
+  listSongs(): Promise<Song[]>
+  deleteSong(videoId: string): Promise<void>
+  clearLibrary(): Promise<void>
+  getBuffers(videoId: string): Promise<Record<string, Uint8Array>>
+  getStemPan(videoId: string): Promise<StemPanMap>
+  setStemPan(videoId: string, pans: StemPanMap): Promise<void>
+  exportStem(videoId: string, stem: string): Promise<{ saved: boolean; path?: string }>
+  exportAllStems(videoId: string): Promise<{ saved: boolean; path?: string; count?: number }>
+  searchYouTube(query: string): Promise<SearchResult[]>
+  startJob(url: string, model?: string, stems?: string[]): Promise<{ started: boolean }>
+  pickAudioFile(): Promise<string | null>
+  pickFolder(): Promise<string | null>
+  // absolute path of a File dropped into the window (preload-side webUtils)
+  getPathForFile(file: File): string
+  startLocalJob(filePath: string, model?: string, stems?: string[]): Promise<{ started: boolean }>
+  cancelJob(videoId?: string): Promise<void>
+  openExternal(url: string): Promise<void>
+  getAppVersion(): Promise<string>
+  checkForUpdates(): Promise<{ ok: boolean }>
+  installUpdate(): void
+  getSettings(): Promise<AppSettings>
+  setSettings(patch: Partial<AppSettings>): Promise<AppSettings>
+  getThumb(videoId: string): Promise<string | null>
+  onThumbCached(cb: (videoId: string) => void): () => void
+  enginesStatus(): Promise<EngineStatus>
+  fetchEngine(which: 'vocals' | 'ft' | 'gpu'): Promise<void>
+  onUpdateEvent(cb: (ev: UpdateEvent) => void): () => void
+  onShowAbout(cb: () => void): () => void
+  onJobEvent(cb: (ev: JobEvent) => void): () => void
+  onEnvEvent(cb: (ev: EnvEvent) => void): () => void
+  onSettingsChange(cb: (settings: AppSettings) => void): () => void
+}
